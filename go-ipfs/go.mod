@@ -1,4 +1,4 @@
-module github.com/cusspvz/rn-ipfs
+module github.com/cusspvz/rn-ipfs/go-ipfs
 
 go 1.13
 

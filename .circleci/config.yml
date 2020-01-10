@@ -1,0 +1,70 @@
+version: 2.1
+
+jobs:
+  build-android-aar:
+    docker:
+      - image: circleci/android:api-28-ndk
+    environment:
+      GOROOT: /usr/local/go
+      GOPATH: /home/circleci/go
+    steps:
+      - checkout
+
+      - run:
+          name: install golang
+          command: |
+            wget https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go1.13.1.linux-amd64.tar.gz
+            mkdir -p $GOPATH/bin
+
+      - run:
+          name: cache mods
+          command: |
+            export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+            go mod download
+
+      - save_cache:
+          key: go-mod-v1-android-{{ checksum "go.sum" }}-{{ arch }}
+          paths:
+            - /go/pkg/mod
+
+      - run:
+          name: install tools
+          command: |
+            sdkmanager --licenses
+            echo y | sdkmanager "build-tools;28.0.3"
+            echo y | sdkmanager "platforms;android-28"
+            sdkmanager 'ndk-bundle'
+
+      - run:
+          name: build android framework
+          command: |
+            export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+            go mod vendor
+            mkdir -p ~/go/src/github.com/cusspvz
+            cd ~ && mv project go/src/github.com/cusspvz/react-native-ipfs
+            cd ~/go/src/github.com/cusspvz/react-native-ipfs
+            export GO111MODULE=off
+            go get golang.org/x/mobile/cmd/...
+            COMMIT=$(echo $CIRCLE_SHA1 | cut -c -7)
+            SUMMARY=$CIRCLE_SHA1
+            if [ "${CIRCLE_TAG}" != "" ]; then
+                SUMMARY=${CIRCLE_TAG}
+            fi
+            DATE=$(date --iso-8601=seconds)
+            FLAGS="-X github.com/cusspvz/react-native-ipfs/ipfs.GitSummary=${SUMMARY} -X github.com/cusspvz/react-native-ipfs/ipfs.BuildDate=${DATE} -X github.com/cusspvz/react-native-ipfs/ipfs.GitCommit=${COMMIT} -X github.com/cusspvz/react-native-ipfs/ipfs.GitBranch=${CIRCLE_BRANCH} -X github.com/cusspvz/react-native-ipfs/ipfs.GitState=clean"
+            gomobile bind -v -ldflags="-w $FLAGS" -trimpath -target=android -o=./android/libs/ipfs.aar -classpath=io.ipfs github.com/cusspvz/rn-ipfs
+
+      - persist_to_workspace:
+        root: ~/go/src/github.com/cusspvz/react-native-ipfs
+        paths:
+          - ./android/libs/ipfs.aar
+
+      - store_artifacts:
+          path: ~/go/src/github.com/cusspvz/react-native-ipfs/android/libs/ipfs.aar
+
+
+workflows:
+  version: 2
+  react-native-ipfs:
+    jobs: []

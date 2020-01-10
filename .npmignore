@@ -1,0 +1,7 @@
+
+# Golang related files
+*.go
+go.*
+
+# Bash scripts
+*.sh

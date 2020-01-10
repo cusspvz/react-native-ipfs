@@ -1,9 +1,11 @@
 #!/bin/bash
 
+go get golang.org/x/mobile/bind
 
-go get -d github.com/cusspvz/rn-ipfs/go-ipfs
-go install -i github.com/cusspvz/rn-ipfs/go-ipfs
+go get -d .
+go install -i .
 go mod download
+go mod vendor
 
-gomobile bind -v -trimpath -target android -o ./ipfs.aar -classpath io.ipfs.rn github.com/cusspvz/rn-ipfs/go-ipfs;
+gomobile bind -v -trimpath -target android -o ./android/libs/ipfs.aar -classpath io.ipfs github.com/cusspvz/rn-ipfs;
 

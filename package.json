@@ -1,0 +1,32 @@
+{
+  "name": "react-native-ipfs",
+  "version": "0.0.1",
+  "main": "index",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": "*"
+  },
+  "scripts": {
+    "precommit": "lint-staged",
+    "commitmsg": "commitlint -E GIT_PARAMS"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "header-max-length": [
+        0,
+        "always",
+        100
+      ]
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.4",
+    "@commitlint/config-conventional": "^8.3.4"
+  }
+}

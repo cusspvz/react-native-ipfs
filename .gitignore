@@ -1,1 +1,8 @@
-build/
+# Modules
+node_modules/
+vendor/
+
+
+# Golang libs
+*.jar
+*.aar
